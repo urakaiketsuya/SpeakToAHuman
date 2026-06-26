@@ -1,0 +1,26 @@
+@import "tailwindcss";
+
+@theme {
+  /* Palette: ColorHunt fcf5ed-f4bf96-ce5a67-1f1717            */
+  /* CE5A67 darkened → B7505C for WCAG AA (4.5:1 on white+bg) */
+  /* F4BF96 kept decorative; B48D6F used for input borders     */
+  --color-brand:        #B7505C;
+  --color-brand-dark:   #1F1717;
+  --color-brand-light:  #FCF5ED;
+  --color-brand-mid:    #F4BF96;
+  --color-brand-border: #B48D6F;
+
+  /* Typography */
+  --font-sans:    'Montserrat', system-ui, sans-serif;
+  --font-display: 'Playfair Display', Georgia, serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: 'Montserrat', system-ui, sans-serif;
+  background: #FCF5ED;
+  color: #1a1a2e;
+  -webkit-font-smoothing: antialiased;
+}
