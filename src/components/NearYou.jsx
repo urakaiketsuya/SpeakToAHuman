@@ -152,7 +152,19 @@ export default function NearYou({ allEntries, category = 'all' }) {
   }
 
   // ── Location unavailable ────────────────────────────────────────────────────
-  if (!location) return null
+  if (!location) {
+    return (
+      <div className="mb-6 bg-white border border-brand-mid rounded-2xl px-5 py-4 flex items-center justify-between text-sm text-gray-400">
+        <div className="flex items-center gap-2">
+          <MapPin size={14} className="text-brand-mid" />
+          Couldn't detect your location — showing all entries below.
+        </div>
+        <button onClick={dismiss} className="text-gray-300 hover:text-gray-500 transition-colors ml-4">
+          <X size={16} />
+        </button>
+      </div>
+    )
+  }
 
   const isSupported = SUPPORTED_COUNTRIES.has(location.countryCode)
 

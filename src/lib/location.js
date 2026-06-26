@@ -1,12 +1,38 @@
-/**
- * location.js
- * Resolves the user's location from their IP via ipapi.co.
- * Returns: { lat, lng, city, region, country, countryCode }
- * Results cached in sessionStorage for 6 hours.
- */
-
 const CACHE_KEY = 'sth_geo_v2'
 const CACHE_TTL = 1000 * 60 * 60 * 6 // 6 hours
+
+async function tryIpapi() {
+  const res = await fetch('https://ipapi.co/json/')
+  if (!res.ok) return null
+  const raw = await res.json()
+  if (raw.error) return null
+  return {
+    lat:         raw.latitude,
+    lng:         raw.longitude,
+    city:        raw.city,
+    region:      raw.region,
+    regionCode:  raw.region_code,
+    country:     raw.country_name,
+    countryCode: raw.country_code,
+  }
+}
+
+async function tryIpinfo() {
+  const res = await fetch('https://ipinfo.io/json')
+  if (!res.ok) return null
+  const raw = await res.json()
+  if (!raw.loc) return null
+  const [lat, lng] = raw.loc.split(',').map(Number)
+  return {
+    lat,
+    lng,
+    city:        raw.city ?? '',
+    region:      raw.region ?? '',
+    regionCode:  raw.region ?? '',  // ipinfo returns full region name; good enough for display
+    country:     raw.country ?? '',
+    countryCode: raw.country ?? '', // ipinfo returns ISO 2-letter code here
+  }
+}
 
 export async function getUserLocation() {
   try {
@@ -16,20 +42,9 @@ export async function getUserLocation() {
       if (Date.now() - ts < CACHE_TTL) return data
     }
 
-    const res = await fetch('https://ipapi.co/json/')
-    if (!res.ok) return null
-    const raw = await res.json()
-    if (raw.error) return null
-
-    const data = {
-      lat:         raw.latitude,
-      lng:         raw.longitude,
-      city:        raw.city,
-      region:      raw.region,       // "California"
-      regionCode:  raw.region_code,  // "CA"
-      country:     raw.country_name, // "United States"
-      countryCode: raw.country_code, // "US"
-    }
+    // Try primary, then fallback
+    const data = await tryIpapi().catch(() => null) ?? await tryIpinfo().catch(() => null)
+    if (!data) return null
 
     sessionStorage.setItem(CACHE_KEY, JSON.stringify({ data, ts: Date.now() }))
     return data
@@ -38,15 +53,12 @@ export async function getUserLocation() {
   }
 }
 
-// Countries we have area-code coordinate data for
 export const SUPPORTED_COUNTRIES = new Set(['US', 'CA'])
 
-// Detect international phone numbers (starts with + and not +1)
 export function isInternationalPhone(phone) {
   return phone.startsWith('+') && !phone.startsWith('+1')
 }
 
-// Extract country calling code from a +XX... number
 export function getCallingCode(phone) {
   const match = phone.match(/^\+(\d{1,3})/)
   return match ? match[1] : null
