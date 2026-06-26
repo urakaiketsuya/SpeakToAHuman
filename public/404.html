@@ -3,12 +3,11 @@
 <head>
   <meta charset="utf-8" />
   <script>
-    // SPA redirect: encode the path into the query string and send to index.html
     var l = window.location;
     l.replace(
       l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') +
-      '/SpeakToAHuman/' +
-      '?p=' + encodeURIComponent(l.pathname.slice('/SpeakToAHuman/'.length) + l.search) +
+      '/speaktoahuman/' +
+      '?p=' + encodeURIComponent(l.pathname.slice('/speaktoahuman/'.length) + l.search) +
       (l.hash || '')
     );
   </script>
